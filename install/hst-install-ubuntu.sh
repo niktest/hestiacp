@@ -1564,6 +1564,8 @@ if [ "$mysql" = 'yes' ] || [ "$mysqlclassic" = 'yes' ]; then
     if [ mysql_type = "MariaDB" ]; then
         # Run mysql_install_db
         mysql_install_db >> $LOG
+    else
+        sudo mysqld --initialize
     fi
 
     # Remove symbolic link
