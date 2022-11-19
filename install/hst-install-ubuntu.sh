@@ -1593,6 +1593,10 @@ if [ "$mysql" = 'yes' ] || [ "$mysqlclassic" = 'yes' ]; then
         mysql -e "UPDATE mysql.global_priv SET priv=json_set(priv, '$.password_last_changed', UNIX_TIMESTAMP(), '$.plugin', 'mysql_native_password', '$.authentication_string', 'invalid', '$.auth_or', json_array(json_object(), json_object('plugin', 'unix_socket'))) WHERE User='root';"
         # Disable anonymous users
         mysql -e "DELETE FROM mysql.global_priv WHERE User='';"
+    else
+        mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY '$mpass';"
+        mysql -e "DELETE FROM mysql.user WHERE User='';"
+        mysql -e "DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');"
     fi
     # Drop test database
     mysql -e "DROP DATABASE IF EXISTS test"
