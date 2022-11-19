@@ -1561,7 +1561,7 @@ if [ "$mysql" = 'yes' ] || [ "$mysqlclassic" = 'yes' ]; then
         mycnf="my-large.cnf"
     fi
 
-    if [ mysql_type = "MariaDB" ]
+    if [ mysql_type = "MariaDB" ]; then
         # Run mysql_install_db
         mysql_install_db >> $LOG
     fi
@@ -1572,7 +1572,7 @@ if [ "$mysql" = 'yes' ] || [ "$mysqlclassic" = 'yes' ]; then
     cp -f $HESTIA_INSTALL_DIR/mysql/$mycnf /etc/mysql/my.cnf
 
     # Switch MariaDB inclusions to the MySQL
-    if [ mysql_type = "MySQL" ]
+    if [ mysql_type = "MySQL" ]; then
         sed -i 's|mariadb.conf.d|mysql.conf.d|g' /etc/mysql/my.cnf
     fi
 
