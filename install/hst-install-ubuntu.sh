@@ -1565,7 +1565,7 @@ if [ "$mysql" = 'yes' ] || [ "$mysqlclassic" = 'yes' ]; then
         # Run mysql_install_db
         mysql_install_db >> $LOG
     else
-        sudo mysqld --initialize
+        mysqld --initialize
     fi
 
     # Remove symbolic link
