@@ -1564,8 +1564,6 @@ if [ "$mysql" = 'yes' ] || [ "$mysqlclassic" = 'yes' ]; then
     if [ mysql_type = "MariaDB" ]; then
         # Run mysql_install_db
         mysql_install_db >> $LOG
-    else
-        mysqld --initialize
     fi
 
     # Remove symbolic link
@@ -1575,6 +1573,7 @@ if [ "$mysql" = 'yes' ] || [ "$mysqlclassic" = 'yes' ]; then
 
     # Switch MariaDB inclusions to the MySQL
     if [ mysql_type = "MySQL" ]; then
+        sed -i '/query_cache_size/d' /etc/mysql/my.cnf
         sed -i 's|mariadb.conf.d|mysql.conf.d|g' /etc/mysql/my.cnf
     fi
 
