@@ -708,7 +708,7 @@ if [ "$mysql" = 'yes' ]; then
    if [ "$release" != '22.04' ]; then
        echo "deb [arch=$ARCH signed-by=/usr/share/keyrings/mariadb-keyring.gpg] https://dlm.mariadb.com/repo/mariadb-server/$mariadb_v/repo/$VERSION $codename main" > $apt/mariadb.list
    else
-       echo "#deb [arch=$ARCH signed-by=/usr/share/keyrings/mariadb-keyring.gpg] https://dlm.mariadb.com/repo/mariadb-server/$mariadb_v/repo/$VERSION $codename main" > $apt/mariadb.list  
+       echo "#deb [arch=$ARCH signed-by=/usr/share/keyrings/mariadb-keyring.gpg] https://dlm.mariadb.com/repo/mariadb-server/$mariadb_v/repo/$VERSION $codename main" > $apt/mariadb.list
    fi
   curl -s https://mariadb.org/mariadb_release_signing_key.asc | gpg --dearmor | tee /usr/share/keyrings/mariadb-keyring.gpg >/dev/null 2>&1
 fi
@@ -1348,7 +1348,7 @@ fi
 if [ -n "$(grep ^admin: /etc/group)" ] && [ "$force" = 'yes' ]; then
     groupdel admin > /dev/null 2>&1
 fi
-# Remove sudo "default" sudo permission admin user group should not exists any way 
+# Remove sudo "default" sudo permission admin user group should not exists any way
 sed -i "s/%admin ALL=(ALL) ALL/#%admin ALL=(ALL) ALL/g" /etc/sudoers
 
 # Enable sftp jail
@@ -1561,12 +1561,20 @@ if [ "$mysql" = 'yes' ] || [ "$mysqlclassic" = 'yes' ]; then
         mycnf="my-large.cnf"
     fi
 
-    # Run mysql_install_db
-    mysql_install_db >> $LOG
+    if [ mysql_type = "MariaDB" ]
+        # Run mysql_install_db
+        mysql_install_db >> $LOG
+    fi
+
     # Remove symbolic link
     rm -f /etc/mysql/my.cnf
     # Configuring MariaDB
     cp -f $HESTIA_INSTALL_DIR/mysql/$mycnf /etc/mysql/my.cnf
+
+    # Switch MariaDB inclusions to the MySQL
+    if [ mysql_type = "MySQL" ]
+        sed -i 's|mariadb.conf.d|mysql.conf.d|g' /etc/mysql/my.cnf
+    fi
 
     update-rc.d mysql defaults > /dev/null 2>&1
     systemctl start mysql >> $LOG
@@ -1726,7 +1734,7 @@ if [ "$exim" = 'yes' ]; then
     gpasswd -a Debian-exim mail > /dev/null 2>&1
     if [ "$release" = "22.04" ]; then
       # Jammyy uses Exim 4.95 instead but config works with Exim4.94
-      cp -f $HESTIA_INSTALL_DIR/exim/exim4.conf.4.94.template /etc/exim4/exim4.conf.template 
+      cp -f $HESTIA_INSTALL_DIR/exim/exim4.conf.4.94.template /etc/exim4/exim4.conf.template
     else
       cp -f $HESTIA_INSTALL_DIR/exim/exim4.conf.template /etc/exim4/
     fi
@@ -1824,7 +1832,7 @@ if [ "$spamd" = 'yes' ]; then
     if [[ "$unit_files" =~ "disabled" ]]; then
         systemctl enable spamassassin > /dev/null 2>&1
     fi
-    
+
     sed -i "s/#CRON=1/CRON=1/" /etc/default/spamassassin
 fi
 
@@ -1858,11 +1866,11 @@ if [ "$fail2ban" = 'yes' ]; then
     if [ -f /etc/fail2ban/jail.d/defaults-debian.conf ]; then
         rm -f /etc/fail2ban/jail.d/defaults-debian.conf
     fi
-  
+
     update-rc.d fail2ban defaults
     # Ubuntu 22.04 doesn't start F2B by default on boot
     update-rc.d fail2ban enable
-    
+
     systemctl start fail2ban >> $LOG
     check_result $? "fail2ban start failed"
 fi
@@ -1918,9 +1926,9 @@ if [ "$sieve" = 'yes' ]; then
     # Permission changes
     chown -R dovecot:mail /var/log/dovecot.log
     chmod 660 /var/log/dovecot.log
-    
+
     if [ -d "/var/lib/roundcube" ]; then
-        # Modify Roundcube config 
+        # Modify Roundcube config
         mkdir -p $RC_CONFIG_DIR/plugins/managesieve
         cp -f $HESTIA_INSTALL_DIR/roundcube/plugins/config_managesieve.inc.php $RC_CONFIG_DIR/plugins/managesieve/config.inc.php
         ln -s $RC_CONFIG_DIR/plugins/managesieve/config.inc.php $RC_INSTALL_DIR/plugins/managesieve/config.inc.php
