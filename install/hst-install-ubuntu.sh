@@ -1882,6 +1882,15 @@ if [ "$fail2ban" = 'yes' ]; then
     check_result $? "fail2ban start failed"
 fi
 
+# Configuring MariaDB/MySQL host
+if [ "$mysql" = 'yes' ] || [ "$mysqlclassic" = 'yes' ]; then
+    $HESTIA/bin/v-add-database-host mysql localhost root $mpass
+fi
+
+# Configuring PostgreSQL host
+if [ "$postgresql" = 'yes' ]; then
+    $HESTIA/bin/v-add-database-host pgsql localhost postgres $ppass
+fi
 
 #----------------------------------------------------------#
 #                       Install Roundcube                  #
@@ -2042,16 +2051,6 @@ if [ "$apache" = 'yes' ] && [ "$nginx"  = 'yes' ] ; then
     sed -i "s/LogFormat \"%h/LogFormat \"%a/g" /etc/apache2/apache2.conf
     a2enmod remoteip >> $LOG
     systemctl restart apache2
-fi
-
-# Configuring MariaDB/MySQL host
-if [ "$mysql" = 'yes' ] || [ "$mysqlclassic" = 'yes' ]; then
-    $HESTIA/bin/v-add-database-host mysql localhost root $mpass
-fi
-
-# Configuring PostgreSQL host
-if [ "$postgresql" = 'yes' ]; then
-    $HESTIA/bin/v-add-database-host pgsql localhost postgres $ppass
 fi
 
 # Adding default domain
